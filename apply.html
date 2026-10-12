@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%2316263A'/><path d='M10 34V18a10 10 0 0 1 20 0v16' fill='none' stroke='white' stroke-width='3'/><path d='M16 34V19a4 4 0 0 1 8 0v15' fill='none' stroke='%23B48C52' stroke-width='3'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600&family=Inter:wght@700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+  <title>نموذج التقديم | CareerGate</title>
+  <meta name="description" content="قدّم طلب التوظيف وارفع سيرتك الذاتية.">
+</head>
+<body data-page="apply">
+<main>
+  <section class="page-head">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="مسار التنقل"><a href="index.html">الرئيسية</a><span>/</span><a href="jobs.html">الوظائف</a><span>/</span>نموذج التقديم</nav>
+      <h1 id="apply-title">نموذج التقديم</h1>
+      <p id="apply-sub">الحقول المعلَّمة بـ <span aria-hidden="true">*</span> مطلوبة. يستغرق التقديم أقل من خمس دقائق.</p>
+    </div>
+  </section>
+
+  <div class="container apply-layout">
+    <div class="form-card" id="form-card">
+      <form id="apply-form" novalidate>
+        <div class="form-alert" id="form-alert" role="alert" tabindex="-1"></div>
+
+        <div class="field field--full" style="margin-bottom:1.4rem">
+          <label for="job">الوظيفة المتقدَّم لها <span class="req">*</span></label>
+          <select id="job" name="job" required></select>
+          <span class="error" id="job-error"></span>
+        </div>
+
+        <div class="form-grid">
+          <div class="field field--full">
+            <label for="fullName">الاسم الكامل <span class="req">*</span></label>
+            <input id="fullName" name="fullName" type="text" autocomplete="name" required aria-describedby="fullName-hint fullName-error">
+            <span class="hint" id="fullName-hint">الاسم الأول واسم العائلة على الأقل، كما في الهوية.</span>
+            <span class="error" id="fullName-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="email">البريد الإلكتروني <span class="req">*</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" required aria-describedby="email-error">
+            <span class="error" id="email-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="phone">رقم الجوال <span class="req">*</span></label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="05XXXXXXXX" required aria-describedby="phone-hint phone-error">
+            <span class="hint" id="phone-hint">مثال: 0512345678 أو ‎+966512345678</span>
+            <span class="error" id="phone-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="qualification">المؤهل العلمي <span class="req">*</span></label>
+            <select id="qualification" name="qualification" required aria-describedby="qualification-error">
+              <option value="">اختر المؤهل</option>
+              <option>ثانوية عامة</option>
+              <option>دبلوم</option>
+              <option>بكالوريوس</option>
+              <option>ماجستير</option>
+              <option>دكتوراه</option>
+            </select>
+            <span class="error" id="qualification-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="major">التخصص <span class="req">*</span></label>
+            <input id="major" name="major" type="text" list="majors" placeholder="مثال: علوم الحاسب" required aria-describedby="major-error">
+            <datalist id="majors">
+              <option value="علوم الحاسب"><option value="نظم المعلومات"><option value="الأمن السيبراني"><option value="المحاسبة">
+              <option value="إدارة الأعمال"><option value="التسويق"><option value="الموارد البشرية"><option value="الهندسة الصناعية">
+              <option value="الإحصاء"><option value="التصميم الجرافيكي"><option value="سلاسل الإمداد">
+            </datalist>
+            <span class="error" id="major-error"></span>
+          </div>
+
+          <div class="field field--full">
+            <span class="label" id="cv-label">السيرة الذاتية <span class="req">*</span></span>
+            <div class="dropzone" id="dropzone">
+              <input id="cv" name="cv" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" aria-labelledby="cv-label" aria-describedby="cv-hint cv-error" required>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+              <p><strong>اسحب الملف هنا</strong> أو اضغط لاختياره</p>
+              <p class="hint" id="cv-hint">PDF أو Word، بحجم أقصى 5 ميجابايت</p>
+            </div>
+            <div class="file-chip" id="file-chip">
+              <span id="file-name"></span>
+              <button type="button" class="link-btn" id="file-remove">إزالة</button>
+            </div>
+            <span class="error" id="cv-error"></span>
+          </div>
+
+          <div class="field field--full">
+            <label class="consent" for="consent">
+              <input id="consent" name="consent" type="checkbox" required aria-describedby="consent-error">
+              <span>أقرّ بصحة البيانات المدخلة، وأوافق على استخدامها لأغراض التوظيف فقط.</span>
+            </label>
+            <span class="error" id="consent-error"></span>
+          </div>
+
+          <div class="field field--full">
+            <button class="btn btn--primary btn--block" type="submit" id="submit-btn">إرسال الطلب</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <aside class="notes" id="notes" aria-label="ملاحظات">
+      <h3>قبل الإرسال</h3>
+      <ul>
+        <li>تأكد من أن بريدك الإلكتروني صحيح، فهو وسيلة التواصل الأساسية.</li>
+        <li>يُفضّل رفع السيرة الذاتية بصيغة PDF.</li>
+        <li>احتفظ بالرقم المرجعي الذي يظهر بعد الإرسال.</li>
+      </ul>
+      <h3>عن هذه النسخة</h3>
+      <p>هذا موقع تجريبي. البيانات تُحفظ مؤقتًا في متصفحك فقط ولا تصل إلى أي جهة، والملف المرفوع لا يُرفع إلى أي خادم.</p>
+    </aside>
+  </div>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/apply.js"></script>
+</body>
+</html>

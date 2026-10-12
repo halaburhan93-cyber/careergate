@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CareerGate | بوابة التوظيف — مجموعة الأفق القابضة</title>
+  <meta name="description" content="بوابة توظيف تجريبية لشركة افتراضية: تصفح الوظائف الشاغرة وقدّم طلبك إلكترونيًا.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%2316263A'/><path d='M10 34V18a10 10 0 0 1 20 0v16' fill='none' stroke='white' stroke-width='3'/><path d='M16 34V19a4 4 0 0 1 8 0v15' fill='none' stroke='%23B48C52' stroke-width='3'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600&family=Inter:wght@700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+<main>
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <h1>ابدأ مسيرتك المهنية مع مجموعة الأفق</h1>
+        <p class="hero__lead">نوظّف في التقنية والمالية والعمليات وخدمة العملاء في الرياض وجدة والدمام. ابحث عن الوظيفة المناسبة وقدّم طلبك في أقل من خمس دقائق.</p>
+        <form class="search-bar" action="jobs.html" method="get" role="search">
+          <label for="hero-q" class="sr-only">ابحث عن وظيفة</label>
+          <input id="hero-q" name="q" type="search" placeholder="المسمى الوظيفي أو المهارة">
+          <button class="btn btn--primary" type="submit">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></svg>
+            <span>ابحث</span>
+          </button>
+        </form>
+        <div class="hero__quick" id="quick-depts"><span>تصفح حسب القسم:</span></div>
+      </div>
+      <div class="hero__gate" aria-hidden="false">
+        <div class="hero__gate-content">
+          <span class="hero__count" id="job-count">0</span>
+          <span class="hero__count-label">وظيفة شاغرة الآن</span><br>
+          <a class="btn btn--light" href="jobs.html">عرض كل الوظائف</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white" id="about" aria-labelledby="about-title">
+    <div class="container about">
+      <div class="about__text">
+        <h2 id="about-title">عن مجموعة الأفق القابضة</h2>
+        <p>مجموعة سعودية تأسست عام 2009، تعمل في الخدمات الرقمية والاستشارات التشغيلية وإدارة المرافق. نخدم أكثر من 300 عميل من القطاعين العام والخاص.</p>
+        <p>نؤمن أن الموظف الذي يتعلم باستمرار يصنع الفرق، لذلك نخصص لكل موظف ميزانية تدريب سنوية، ونراجع المسارات المهنية مرتين كل عام.</p>
+        <div class="facts">
+          <div class="fact"><strong>2009</strong><span>سنة التأسيس</span></div>
+          <div class="fact"><strong>1,400+</strong><span>موظف وموظفة</span></div>
+          <div class="fact"><strong>6</strong><span>مكاتب في المملكة</span></div>
+        </div>
+      </div>
+      <ul class="values">
+        <li>
+          <span class="values__icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M6 15l4-4 3 3 5-6"/></svg></span>
+          <div><h3>نمو مهني واضح</h3><p>مسار وظيفي مكتوب لكل دور، ومراجعة أداء عادلة مرتبطة بالمكافآت.</p></div>
+        </li>
+        <li>
+          <span class="values__icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></span>
+          <div><h3>رعاية شاملة</h3><p>تأمين طبي للموظف وعائلته، وإجازات تتجاوز الحد النظامي.</p></div>
+        </li>
+        <li>
+          <span class="values__icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+          <div><h3>مرونة في العمل</h3><p>نظام هجين أو عن بعد حسب طبيعة الوظيفة.</p></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="latest-title">
+    <div class="container">
+      <div class="section__head">
+        <div>
+          <h2 id="latest-title">أحدث الوظائف</h2>
+          <p>آخر الفرص التي أُضيفت إلى البوابة.</p>
+        </div>
+        <a class="btn btn--ghost" href="jobs.html">كل الوظائف</a>
+      </div>
+      <div class="job-list" id="latest-jobs"></div>
+    </div>
+  </section>
+
+  <section class="section section--white" aria-labelledby="steps-title">
+    <div class="container">
+      <div class="section__head"><h2 id="steps-title">كيف يتم التوظيف؟</h2></div>
+      <ol class="steps">
+        <li><h3>قدّم طلبك</h3><p>اختر الوظيفة وارفع سيرتك الذاتية، وستحصل على رقم مرجعي فورًا.</p></li>
+        <li><h3>الفرز الأولي</h3><p>يراجع فريق الموارد البشرية الطلبات خلال 10 أيام عمل.</p></li>
+        <li><h3>المقابلات</h3><p>مقابلة مع الموارد البشرية ثم مقابلة فنية مع مدير القسم.</p></li>
+        <li><h3>العرض الوظيفي</h3><p>نرسل العرض مكتوبًا ونساعدك في إجراءات الانضمام.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta">
+        <div>
+          <h2>لم تجد الوظيفة المناسبة؟</h2>
+          <p>أرسل سيرتك الذاتية بطلب عام، وسنتواصل معك عند توفر فرصة تناسبك.</p>
+        </div>
+        <a class="btn btn--light" href="apply.html">أرسل طلبًا عامًا</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  (function () {
+    const jobs = window.CG_JOBS;
+    document.getElementById("job-count").textContent = jobs.length;
+    const latest = [...jobs].sort((a, b) => b.posted.localeCompare(a.posted)).slice(0, 4);
+    document.getElementById("latest-jobs").innerHTML = latest.map(CG.jobCard).join("");
+    const quick = document.getElementById("quick-depts");
+    CG.unique("department").forEach((d) => {
+      const a = document.createElement("a");
+      a.href = "jobs.html?dept=" + encodeURIComponent(d);
+      a.textContent = d;
+      quick.append(a);
+    });
+  })();
+</script>
+</body>
+</html>

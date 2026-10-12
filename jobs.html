@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%2316263A'/><path d='M10 34V18a10 10 0 0 1 20 0v16' fill='none' stroke='white' stroke-width='3'/><path d='M16 34V19a4 4 0 0 1 8 0v15' fill='none' stroke='%23B48C52' stroke-width='3'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600&family=Inter:wght@700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+  <title>الوظائف الشاغرة | CareerGate</title>
+  <meta name="description" content="ابحث في الوظائف الشاغرة وصفّها حسب القسم والمدينة ونوع الدوام.">
+</head>
+<body data-page="jobs">
+<main>
+  <section class="page-head">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="مسار التنقل"><a href="index.html">الرئيسية</a><span>/</span>الوظائف الشاغرة</nav>
+      <h1>الوظائف الشاغرة</h1>
+      <p>ابحث بالكلمة المفتاحية أو صفِّ النتائج حسب القسم والمدينة ونوع الدوام.</p>
+    </div>
+  </section>
+
+  <div class="container jobs-layout">
+    <aside class="filters" id="filters" aria-label="تصفية النتائج">
+      <h2>التصفية <button type="button" class="link-btn" id="clear-filters">مسح الكل</button></h2>
+      <fieldset><legend>القسم</legend><div data-group="department"></div></fieldset>
+      <fieldset><legend>المدينة</legend><div data-group="location"></div></fieldset>
+      <fieldset><legend>نوع الدوام</legend><div data-group="type"></div></fieldset>
+    </aside>
+
+    <section aria-labelledby="results-title">
+      <h2 id="results-title" class="sr-only">نتائج البحث</h2>
+      <div class="results-bar">
+        <div class="search-bar" role="search">
+          <label for="q" class="sr-only">ابحث في الوظائف</label>
+          <input id="q" type="search" placeholder="ابحث بالمسمى أو المهارة أو رقم الوظيفة" autocomplete="off">
+        </div>
+        <label class="sr-only" for="sort">ترتيب النتائج</label>
+        <select id="sort" class="select">
+          <option value="new">الأحدث أولًا</option>
+          <option value="old">الأقدم أولًا</option>
+          <option value="deadline">أقرب موعد إغلاق</option>
+          <option value="az">أبجديًا</option>
+        </select>
+        <button type="button" class="btn btn--ghost filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters">التصفية</button>
+      </div>
+      <p class="results-count" id="results-count" aria-live="polite"></p>
+      <div class="job-list" id="job-list"></div>
+    </section>
+  </div>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/jobs.js"></script>
+</body>
+</html>
