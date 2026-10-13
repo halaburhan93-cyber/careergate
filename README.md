@@ -85,11 +85,20 @@ careergate/
 
 > كلمة مرور SMTP تُحفظ في لوحة Supabase فقط، ولا تظهر في كود الموقع.
 
-4. (اختياري) **Authentication → Emails → Templates:** عرّب رسالتي **Confirm signup** و**Reset password** مع إبقاء المتغير `{{ .ConfirmationURL }}`، مثال:
+4. **(ضروري) Authentication → Emails → Templates:** الروابط يجب أن تفتح صفحات الموقع مع `token_hash`،
+   ولا يُستهلك الرمز إلا عند ضغط المستخدم الزر (يمنع خطأ `otp_expired` الذي تسببه برامج فحص الروابط في البريد).
+
+   **Confirm signup:**
+   ```html
+   <h2>تفعيل حسابك في CareerGate</h2>
+   <p>اضغط الرابط التالي ثم زر «تأكيد البريد» لتفعيل حسابك:</p>
+   <p><a href="https://halaburhan93-cyber.github.io/careergate/confirm.html?token_hash={{ .TokenHash }}&type=email">تفعيل الحساب</a></p>
+   ```
+   **Reset Password:**
    ```html
    <h2>استعادة كلمة المرور</h2>
    <p>اضغط الرابط التالي لتعيين كلمة مرور جديدة لحسابك في CareerGate:</p>
-   <p><a href="{{ .ConfirmationURL }}">تعيين كلمة المرور</a></p>
+   <p><a href="https://halaburhan93-cyber.github.io/careergate/reset.html?token_hash={{ .TokenHash }}&type=recovery">تعيين كلمة المرور</a></p>
    <p>إذا لم تطلب ذلك فتجاهل هذه الرسالة.</p>
    ```
 5. بعد تفعيل SMTP ارفع حد الإرسال من **Authentication → Rate Limits** حسب حاجتك.

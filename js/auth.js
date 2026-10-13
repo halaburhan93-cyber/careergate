@@ -2,12 +2,20 @@
    الصفحات العامة (الدخول/التسجيل/الاستعادة) تحمل data-auth="public" في <body>،
    وكل صفحة أخرى تتطلب جلسة صالحة. */
 (function () {
+  // رابط استعادة كلمة المرور وصل إلى صفحة غير صفحة التعيين (مثل login أو Site URL):
+  // ننقله إلى reset.html قبل أن تستهلك المكتبة الرمز هنا
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (document.body.dataset.page !== "reset" && (h.get("type") === "recovery" || h.get("error_code"))) {
+    location.replace("reset.html" + location.hash);
+    return;
+  }
   const cfg = window.CG_CONFIG || {};
   const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "implicit" },
   });
   const isPublic = document.body.dataset.auth === "public";
-  const AUTH = (window.CG_AUTH = { sb, user: null });
+  // نحفظ جزء الرابط بعد # قبل أن تمسحه المكتبة، لعرض سبب فشل الرابط إن وُجد
+  const AUTH = (window.CG_AUTH = { sb, user: null, initialHash: h });
 
   // يسمح فقط بإعادة التوجيه إلى صفحات الموقع نفسه (يمنع Open Redirect)
   AUTH.safeNext = (n) => (n && /^(index|jobs|job|apply)\.html(\?[^#\s]*)?$/.test(n) ? n : "index.html");

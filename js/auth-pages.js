@@ -10,6 +10,12 @@
   const btn = document.getElementById("submit-btn");
   const btnText = btn.textContent;
   const next = AUTH.safeNext(CG.param("next"));
+  // رمز التأكيد/الاستعادة القادم من رابط البريد (?token_hash=...&type=...)
+  // لا يُستهلك عند فتح الصفحة، بل عند ضغط المستخدم الزر فقط؛
+  // حتى لا تستهلكه برامج فحص الروابط في البريد (Outlook/Gmail) فيظهر otp_expired.
+  const tokenHash = CG.param("token_hash");
+  const tokenType = CG.param("type");
+  const cleanUrl = () => history.replaceState(null, "", location.pathname);
 
   /* إظهار/إخفاء كلمة المرور */
   document.querySelectorAll(".pw__toggle").forEach((t) => t.addEventListener("click", () => {
@@ -86,6 +92,8 @@
     if (m.includes("weak_password") || m.includes("password should")) return "كلمة المرور ضعيفة. اختر كلمة أطول تحتوي على حروف وأرقام.";
     if (m.includes("same_password") || m.includes("different from the old")) return "كلمة المرور الجديدة يجب أن تختلف عن السابقة.";
     if (m.includes("user_already_exists") || m.includes("already registered")) return "تعذّر إنشاء الحساب بهذا البريد. جرّب تسجيل الدخول أو استعادة كلمة المرور.";
+    if (m.includes("otp_expired") || m.includes("expired") || m.includes("invalid") && m.includes("token") || m.includes("missing_token"))
+      return "الرابط غير صالح أو انتهت صلاحيته، أو استُخدم من قبل. اطلب رابطًا جديدًا.";
     if (m.includes("fetch") || m.includes("network")) return "تعذّر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.";
     return "حدث خطأ غير متوقع. حاول مرة أخرى.";
   }
@@ -95,8 +103,22 @@
       const { error } = await sb.auth.signInWithPassword({
         email: form.email.value.trim(), password: form.password.value,
       });
-      if (error) throw error;
+      if (error) {
+        if (/not.confirmed/i.test(error.code || error.message)) offerResend(form.email.value.trim());
+        throw error;
+      }
       location.replace(next);
+    },
+
+    async confirm() {
+      if (!tokenHash) throw { code: "missing_token" };
+      const type = ["email", "signup", "invite", "email_change"].includes(tokenType) ? tokenType : "email";
+      const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type });
+      cleanUrl();
+      if (error) throw error;
+      form.querySelector(".auth-fields").hidden = true;
+      showNotice("تم تفعيل حسابك بنجاح. جارٍ تحويلك…");
+      setTimeout(() => location.replace("index.html"), 1200);
     },
 
     async register() {
@@ -105,7 +127,7 @@
         password: form.password.value,
         options: {
           data: { full_name: form.fullName.value.trim().replace(/\s+/g, " ") },
-          emailRedirectTo: AUTH.baseUrl() + "login.html?confirmed=1",
+          emailRedirectTo: AUTH.baseUrl() + "confirm.html",
         },
       });
       if (error) throw error;
@@ -126,6 +148,12 @@
     },
 
     async reset() {
+      // نستهلك رمز الاستعادة الآن فقط (عند الحفظ)، ثم نغيّر كلمة المرور
+      if (tokenHash) {
+        const { error: vErr } = await sb.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
+        cleanUrl();
+        if (vErr) { form.querySelector(".auth-fields").hidden = true; throw vErr; }
+      }
       const { error } = await sb.auth.updateUser({ password: form.password.value });
       if (error) throw error;
       // إنهاء الجلسات الأخرى على الأجهزة الأخرى بعد تغيير كلمة المرور
@@ -136,7 +164,23 @@
     },
   };
 
-  const busyLabel = { login: "جارٍ الدخول…", register: "جارٍ إنشاء الحساب…", forgot: "جارٍ الإرسال…", reset: "جارٍ الحفظ…" };
+  const busyLabel = { login: "جارٍ الدخول…", register: "جارٍ إنشاء الحساب…", forgot: "جارٍ الإرسال…", reset: "جارٍ الحفظ…", confirm: "جارٍ التأكيد…" };
+
+  /* إعادة إرسال رسالة التفعيل لحساب لم يُفعَّل */
+  function offerResend(email) {
+    if (document.getElementById("resend-btn")) return;
+    const b = document.createElement("button");
+    b.type = "button"; b.id = "resend-btn"; b.className = "btn btn--ghost btn--block";
+    b.textContent = "إعادة إرسال رسالة التفعيل";
+    b.addEventListener("click", async () => {
+      b.disabled = true;
+      const { error } = await sb.auth.resend({ type: "signup", email, options: { emailRedirectTo: AUTH.baseUrl() + "confirm.html" } });
+      if (error) { b.disabled = false; return showError(friendly(error)); }
+      b.remove();
+      showNotice("أرسلنا رسالة تفعيل جديدة. افتح أحدث رسالة فقط، فالروابط السابقة لم تعد صالحة.");
+    });
+    btn.after(b);
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -159,12 +203,21 @@
 
   /* حالة الصفحة بعد التحقق من الجلسة */
   AUTH.ready.then((user) => {
-    if (page === "reset") {
-      // رابط منتهي أو غير صالح: Supabase يعيد الخطأ في جزء الرابط بعد #
-      const hash = new URLSearchParams(location.hash.slice(1));
-      if (hash.get("error") || !user) {
+    // رابط منتهي أو غير صالح بالطريقة القديمة: Supabase يعيد الخطأ في جزء الرابط بعد #
+    const hashErr = AUTH.initialHash.get("error_code");
+    if (page === "confirm") {
+      if (hashErr || !tokenHash) {
         form.querySelector(".auth-fields").hidden = true;
-        showError("رابط الاستعادة غير صالح أو انتهت صلاحيته. اطلب رابطًا جديدًا.");
+        showError("رابط التفعيل غير صالح أو انتهت صلاحيته. سجّل الدخول ببريدك وكلمة مرورك، وستظهر لك إمكانية إعادة إرسال رسالة التفعيل.");
+      }
+      return;
+    }
+    if (page === "reset") {
+      if (hashErr || (!user && !tokenHash)) {
+        form.querySelector(".auth-fields").hidden = true;
+        showError(hashErr === "otp_expired"
+          ? "انتهت صلاحية رابط الاستعادة أو استُخدم من قبل. اطلب رابطًا جديدًا، وافتح أحدث رسالة فقط واضغط الرابط مرة واحدة."
+          : "رابط الاستعادة غير صالح. اطلب رابطًا جديدًا من صفحة «نسيت كلمة المرور».");
       }
       return;
     }
