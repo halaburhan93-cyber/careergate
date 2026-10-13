@@ -53,7 +53,10 @@
   }
   CG.icon = icon;
 
-  /* الترويسة والتذييل */
+  /* الترويسة والتذييل — تُبنى بعد التحقق من الجلسة */
+  window.CG_AUTH.ready.then(buildChrome);
+
+  function buildChrome(user) {
   const page = document.body.dataset.page || "";
   const links = [
     ["index.html", "الرئيسية", "home"],
@@ -73,18 +76,25 @@
   const header = document.createElement("header");
   header.className = "site-header";
   header.innerHTML = `
-    <div class="demo-bar" role="note">نسخة تجريبية: كل الوظائف والبيانات وهمية، ولا تُرسل الطلبات إلى أي جهة.</div>
+    <div class="demo-bar" role="note">نسخة تجريبية: الوظائف والشركة وهمية.</div>
     <div class="container site-header__inner">
       ${logo}
       <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
         <span class="sr-only">القائمة</span><span class="nav-toggle__bars" aria-hidden="true"></span>
       </button>
       <nav id="site-nav" class="site-nav" aria-label="التنقل الرئيسي">
+        ${user ? `
         ${links.map(([h, t, k]) => `<a href="${h}" ${k === page ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
         <a class="btn btn--primary btn--sm" href="apply.html">قدّم طلبك</a>
+        <span class="user-chip" title="${CG.esc(user.email)}">${CG.esc(window.CG_AUTH.displayName(user))}</span>
+        <button type="button" class="btn btn--outline-light btn--sm" id="logout-btn">تسجيل الخروج</button>` : `
+        <a href="login.html" ${page === "login" ? 'aria-current="page"' : ""}>تسجيل الدخول</a>
+        <a class="btn btn--primary btn--sm" href="register.html">إنشاء حساب</a>`}
       </nav>
     </div>`;
   document.body.prepend(header);
+  const logout = header.querySelector("#logout-btn");
+  if (logout) logout.addEventListener("click", () => { logout.disabled = true; window.CG_AUTH.signOut(); });
 
   const toggle = header.querySelector(".nav-toggle");
   const nav = header.querySelector(".site-nav");
@@ -105,12 +115,13 @@
         ${logo}
         <p class="site-footer__about">بوابة التوظيف الرسمية لـ ${CG.esc(window.CG_COMPANY.name)} — شركة افتراضية لأغراض العرض.</p>
       </div>
-      <nav aria-label="روابط التذييل" class="site-footer__links">
+      ${user ? `<nav aria-label="روابط التذييل" class="site-footer__links">
         <a href="jobs.html">الوظائف الشاغرة</a>
         <a href="index.html#about">عن الشركة</a>
         <a href="apply.html">التقديم العام</a>
-      </nav>
+      </nav>` : ""}
       <p class="site-footer__copy">© ${new Date().getFullYear()} CareerGate. مشروع تجريبي ببيانات وهمية.</p>
     </div>`;
   document.body.append(footer);
+  }
 })();

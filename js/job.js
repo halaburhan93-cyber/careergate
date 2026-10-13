@@ -1,5 +1,5 @@
 /* صفحة تفاصيل الوظيفة: job.html?id=CG-101 */
-(function () {
+window.CG_AUTH.ready.then(function () {
   const root = document.getElementById("job-root");
   const id = CG.param("id");
   const job = id && CG.getJob(id);
@@ -76,4 +76,4 @@
       }
     } catch { show("تعذّر النسخ، انسخ الرابط من شريط العنوان"); }
   });
-})();
+});

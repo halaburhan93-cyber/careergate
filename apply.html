@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600&family=Inter:wght@700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-</head>
+  <script src="js/config.js"></script>
+  <script src="js/guard.js"></script>
   <title>نموذج التقديم | CareerGate</title>
   <meta name="description" content="قدّم طلب التوظيف وارفع سيرتك الذاتية.">
 </head>
@@ -116,10 +117,12 @@
         <li>احتفظ بالرقم المرجعي الذي يظهر بعد الإرسال.</li>
       </ul>
       <h3>عن هذه النسخة</h3>
-      <p>هذا موقع تجريبي. البيانات تُحفظ مؤقتًا في متصفحك فقط ولا تصل إلى أي جهة، والملف المرفوع لا يُرفع إلى أي خادم.</p>
+      <p>هذا موقع تجريبي. يُحفظ طلبك في حسابك، لكن ملف السيرة الذاتية لا يُرفع إلى الخادم في هذه النسخة.</p>
     </aside>
   </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script src="js/apply.js"></script>

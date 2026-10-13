@@ -1,5 +1,5 @@
 /* صفحة الوظائف: بحث نصي + تصفية متعددة + ترتيب، مع حفظ الحالة في الرابط */
-(function () {
+window.CG_AUTH.ready.then(function () {
   const jobs = window.CG_JOBS;
   const groups = ["department", "location", "type"];
   const urlKey = { department: "dept", location: "city", type: "type" };
@@ -89,4 +89,4 @@
   });
 
   render();
-})();
+});

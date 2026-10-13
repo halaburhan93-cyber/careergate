@@ -1,86 +1,141 @@
 # CareerGate — بوابة توظيف تجريبية
 
-بوابة توظيف لشركة افتراضية (مجموعة الأفق القابضة) مبنية بـ HTML وCSS وJavaScript فقط، بدون أي مكتبات أو أدوات بناء.
+بوابة توظيف لشركة افتراضية (مجموعة الأفق القابضة) مبنية بـ HTML وCSS وJavaScript، مع **نظام حسابات حقيقي** عبر [Supabase](https://supabase.com) (المصادقة + قاعدة بيانات PostgreSQL).
+الموقع نفسه يبقى ملفات ثابتة على GitHub Pages، وكل العمليات الحساسة تتم على خادم Supabase.
 
-> ⚠️ **مشروع تجريبي ببيانات وهمية.** الوظائف والشركة غير حقيقية، والطلبات **لا تُرسل إلى أي جهة**. عند الضغط على «إرسال الطلب» تُحاكى العملية ويُحفظ الطلب في `localStorage` داخل متصفح المستخدم فقط، ولا يُرفع ملف السيرة الذاتية إلى أي خادم.
+> ⚠️ الوظائف والشركة وهمية. ملف السيرة الذاتية لا يُرفع (يُحفظ اسمه فقط).
 
 ## الصفحات
 
-| الملف | المحتوى |
-|---|---|
-| `index.html` | الرئيسية: بحث سريع، عن الشركة، أحدث الوظائف، مراحل التوظيف |
-| `jobs.html` | الوظائف الشاغرة: بحث نصي، تصفية بالقسم والمدينة ونوع الدوام، ترتيب |
-| `job.html?id=CG-101` | تفاصيل الوظيفة: المهام والمتطلبات والمزايا وزر التقديم |
-| `apply.html?id=CG-101` | نموذج التقديم مع التحقق ورفع السيرة الذاتية ورسالة التأكيد والرقم المرجعي |
+| الملف | الوصول | المحتوى |
+|---|---|---|
+| `login.html` | عام | تسجيل الدخول بالبريد وكلمة المرور |
+| `register.html` | عام | إنشاء حساب (الاسم، البريد، كلمة المرور) + رسالة تفعيل |
+| `forgot.html` | عام | طلب رابط استعادة كلمة المرور بالبريد |
+| `reset.html` | عبر رابط البريد | تعيين كلمة مرور جديدة |
+| `index.html` | **مسجّل فقط** | الرئيسية |
+| `jobs.html` | **مسجّل فقط** | الوظائف: بحث وتصفية وترتيب |
+| `job.html?id=CG-101` | **مسجّل فقط** | تفاصيل الوظيفة |
+| `apply.html?id=CG-101` | **مسجّل فقط** | نموذج التقديم (يُحفظ في قاعدة البيانات) |
 
 ## هيكل المشروع
 
 ```
 careergate/
-├── index.html  jobs.html  job.html  apply.html
+├── index.html  jobs.html  job.html  apply.html        ← صفحات محمية
+├── login.html  register.html  forgot.html  reset.html ← صفحات الحساب
 ├── css/style.css
+├── supabase/schema.sql   ← الجداول + سياسات الحماية (RLS) + بيانات الوظائف
 └── js/
-    ├── data.js    ← بيانات الوظائف الوهمية (عدّلها هنا)
-    ├── main.js    ← الترويسة والتذييل والأدوات المشتركة
-    ├── jobs.js    ← البحث والتصفية
-    ├── job.js     ← صفحة التفاصيل
-    └── apply.js   ← النموذج والتحقق والرقم المرجعي
+    ├── config.js      ← رابط مشروع Supabase والمفتاح العام (فقط)
+    ├── guard.js       ← يخفي الصفحة المحمية ويحوّل فورًا إن لا توجد جلسة
+    ├── auth.js        ← الجلسة، الحماية، تحميل الوظائف، تسجيل الخروج
+    ├── auth-pages.js  ← منطق صفحات الدخول والتسجيل والاستعادة
+    ├── data.js        ← بيانات الشركة العامة
+    ├── main.js        ← الترويسة (اسم المستخدم + خروج) والتذييل
+    ├── jobs.js  job.js  apply.js
 ```
+
+## كيف تعمل الحماية
+
+- **كلمات المرور:** لا تمر عبر كودنا إلى أي تخزين؛ Supabase Auth يشفّرها بـ bcrypt.
+- **الجلسات:** رمز JWT قصير العمر يتجدد تلقائيًا (Refresh Token Rotation)، ويُتحقق منه على الخادم (`getUser`) عند فتح كل صفحة.
+- **البيانات محمية فعليًا وليس شكليًا:** الوظائف نُقلت من `data.js` إلى جدول `jobs`، وسياسات RLS لا تسمح بقراءتها إلا لمستخدم مسجّل. كل مستخدم يرى طلباته فقط.
+- **الاستعادة:** رابط لمرة واحدة ومحدود المدة يرسله Supabase، ورسالة «نسيت كلمة المرور» لا تكشف إن كان البريد مسجّلًا.
+- **حماية إضافية:** حد لمحاولات الدخول (Rate limiting من Supabase)، منع إعادة التوجيه لروابط خارجية، إنهاء الجلسات الأخرى بعد تغيير كلمة المرور.
+- **المفاتيح:** الواجهة تحتوي فقط المفتاح العام (publishable/anon) المصمم للمتصفح. **المفتاح السري (secret/service_role) وكلمة مرور SMTP لا يوضعان أبدًا في الكود**؛ يبقيان في لوحة Supabase.
+
+---
+
+## الإعداد (مرة واحدة)
+
+### 1) إنشاء مشروع Supabase
+1. سجّل في supabase.com ← **New project** (اختر منطقة قريبة، مثل Frankfurt أو Mumbai).
+2. **SQL Editor → New query** ← الصق محتوى `supabase/schema.sql` ← **Run**.
+   يُنشئ الجداول والسياسات ويضيف الوظائف العشر الحالية.
+3. **Project Settings → API Keys** ← انسخ **Project URL** و**Publishable key** (أو `anon public`) وضعهما في `js/config.js`.
+
+### 2) إعدادات المصادقة
+من **Authentication**:
+- **Sign In / Providers → Email:** تأكد أن Email مفعّل، وأن **Confirm email** مفعّل.
+- **Password requirements (في نفس الصفحة):** الحد الأدنى `8`، ويُفضّل «Letters and digits».
+- **URL Configuration:**
+  - **Site URL:** `https://USERNAME.github.io/careergate/`
+  - **Redirect URLs:** أضف:
+    - `https://USERNAME.github.io/careergate/**`
+    - `http://localhost:8000/**` (للاختبار المحلي)
+
+### 3) إعداد البريد الإلكتروني (ضروري لرسائل حقيقية)
+بريد Supabase المدمج **للتجربة فقط**: يرسل لأعضاء فريق المشروع فقط وبعدد قليل جدًا في الساعة. لإرسال رسائل لأي مستخدم استخدم SMTP خاصًا:
+
+**الخيار المقترح: Resend (مجاني حتى 3,000 رسالة/شهر)**
+1. سجّل في resend.com ← **Domains → Add domain** ← أضف سجلات DNS المطلوبة لنطاقك (يلزم نطاق تملكه).
+2. **API Keys → Create** وانسخ المفتاح.
+3. في Supabase: **Authentication → Emails → SMTP Settings → Enable custom SMTP**:
+   | الحقل | القيمة |
+   |---|---|
+   | Sender email | `no-reply@yourdomain.com` |
+   | Sender name | `CareerGate` |
+   | Host | `smtp.resend.com` |
+   | Port | `465` |
+   | Username | `resend` |
+   | Password | مفتاح Resend |
+
+**بدائل:** Brevo أو SendGrid أو Amazon SES (نفس الحقول بقيم مزودك). أو Gmail (`smtp.gmail.com`، منفذ `465`، واسم المستخدم بريدك، وكلمة المرور «App Password» من إعدادات أمان Google بعد تفعيل التحقق بخطوتين) — مناسب للاختبار فقط.
+
+> كلمة مرور SMTP تُحفظ في لوحة Supabase فقط، ولا تظهر في كود الموقع.
+
+4. (اختياري) **Authentication → Emails → Templates:** عرّب رسالتي **Confirm signup** و**Reset password** مع إبقاء المتغير `{{ .ConfirmationURL }}`، مثال:
+   ```html
+   <h2>استعادة كلمة المرور</h2>
+   <p>اضغط الرابط التالي لتعيين كلمة مرور جديدة لحسابك في CareerGate:</p>
+   <p><a href="{{ .ConfirmationURL }}">تعيين كلمة المرور</a></p>
+   <p>إذا لم تطلب ذلك فتجاهل هذه الرسالة.</p>
+   ```
+5. بعد تفعيل SMTP ارفع حد الإرسال من **Authentication → Rate Limits** حسب حاجتك.
+
+---
 
 ## التشغيل محليًا
 
-**أسهل طريقة:** افتح `index.html` مباشرة في المتصفح بالنقر المزدوج.
+صفحات الحساب تحتاج خادمًا (لا تعمل بفتح الملف مباشرة). من مجلد المشروع:
 
-**الطريقة الأفضل (خادم محلي):**
 ```bash
-cd careergate
-python3 -m http.server 8000
-# ثم افتح http://localhost:8000
+python -m http.server 8000
 ```
-أو استخدم إضافة **Live Server** في VS Code.
+أو `npx serve -l 8000`، أو إضافة **Live Server** في VS Code (غيّر المنفذ إلى 8000 أو أضف منفذها إلى Redirect URLs). ثم افتح `http://localhost:8000`.
 
-## النشر على GitHub Pages
+## الاختبار
 
-1. أنشئ مستودعًا جديدًا على GitHub (مثلًا `careergate`) واجعله **Public**.
-2. ارفع الملفات بحيث يكون `index.html` في **جذر المستودع**:
-   ```bash
-   cd careergate
-   git init
-   git add .
-   git commit -m "CareerGate initial version"
-   git branch -M main
-   git remote add origin https://github.com/USERNAME/careergate.git
-   git push -u origin main
-   ```
-   (أو من واجهة GitHub: **Add file → Upload files** واسحب محتويات المجلد.)
-3. من المستودع: **Settings → Pages**.
-4. في **Build and deployment** اختر **Source: Deploy from a branch**، ثم الفرع `main` والمجلد `/ (root)` واضغط **Save**.
-5. بعد دقيقة أو اثنتين سيظهر الرابط: `https://USERNAME.github.io/careergate/`
+1. افتح `http://localhost:8000/jobs.html` ← يجب أن تُحوَّل إلى صفحة الدخول.
+2. **إنشاء حساب** ببريد حقيقي ← تصلك رسالة تفعيل ← اضغطها ← تعود لصفحة الدخول برسالة «تم تفعيل حسابك».
+3. **الدخول** ← تظهر الوظائف، واسمك وزر «تسجيل الخروج» في الترويسة.
+4. **قدّم طلبًا** ← تحقّق من ظهوره في Supabase: **Table Editor → applications**.
+5. **سجّل الخروج** ← حاول فتح `jobs.html` ← تُحوَّل للدخول.
+6. **نسيت كلمة المرور** ← تصلك رسالة ← افتح الرابط ← عيّن كلمة جديدة ← تدخل تلقائيًا. افتح نفس الرابط مرة ثانية ← يجب أن يظهر «الرابط غير صالح».
+7. جرّب كلمة مرور خاطئة عدة مرات ← رسالة عامة دون كشف التفاصيل.
+8. المستخدمون: **Authentication → Users**؛ ملفاتهم: جدول `profiles`.
+
+## النشر على نفس الرابط (GitHub Pages)
+
+الموقع منشور أصلًا من فرع `main`، فيكفي رفع التعديلات إلى المستودع نفسه:
+
+```bash
+git add .
+git commit -m "Add user accounts and authentication"
+git push
+```
+(أو من واجهة GitHub: **Add file → Upload files** وارفع الملفات والمجلدات الجديدة والمعدّلة.)
+
+بعد دقيقة أو اثنتين يتحدث الموقع على نفس الرابط `https://USERNAME.github.io/careergate/`. تأكد أن هذا الرابط مضاف في **Site URL** و**Redirect URLs** في Supabase.
 
 ملف `.nojekyll` موجود لمنع GitHub من معالجة الملفات بـ Jekyll.
 
-## تخصيص الوظائف
+## إدارة الوظائف
 
-كل الوظائف في `js/data.js`. لإضافة وظيفة انسخ أي عنصر وغيّر `id` (يجب أن يكون فريدًا) وباقي الحقول. خيارات التصفية تُبنى تلقائيًا من البيانات.
+الوظائف الآن في جدول `jobs` على Supabase: **Table Editor → jobs** لإضافة وظيفة أو تعديلها (حقول `responsibilities` و`requirements` و`benefits` مصفوفات JSON). خيارات التصفية تُبنى تلقائيًا.
 
-## لتحويله إلى نظام حقيقي
+## البيانات السابقة
 
-GitHub Pages يستضيف ملفات ثابتة فقط، فلا يستطيع استقبال الطلبات أو حفظ الملفات. لاستقبال الطلبات فعليًا تحتاج إلى خدمة خلفية وقاعدة بيانات، مثلًا:
-
-- **خادم خاص** (Node.js/Express، Laravel، Django…) مع قاعدة بيانات (PostgreSQL أو MySQL) وتخزين للملفات (مثل S3).
-- **خدمات جاهزة بدون خادم:** Supabase أو Firebase (قاعدة بيانات + تخزين ملفات)، أو خدمات النماذج مثل Formspree وBasin لاستقبال الطلبات على البريد.
-
-نقطة الربط في الكود هي الدالة `submitApplication` في `js/apply.js`. استبدلها بطلب حقيقي، مثال:
-
-```js
-async function submitApplication(data) {
-  const body = new FormData();
-  Object.entries(data).forEach(([k, v]) => body.append(k, v));
-  body.append("cv", document.getElementById("cv").files[0]);
-  const res = await fetch("https://your-api.example.com/applications", { method: "POST", body });
-  if (!res.ok) throw new Error("فشل الإرسال");
-  return res.json(); // يُفضّل أن يولّد الخادم الرقم المرجعي ويعيده
-}
-```
-
-في النظام الحقيقي يجب أيضًا: التحقق من البيانات وفحص الملفات على الخادم (وليس في المتصفح فقط)، استخدام HTTPS، حماية من الرسائل المزعجة (CAPTCHA)، الالتزام بنظام حماية البيانات الشخصية، وإرسال بريد تأكيد للمتقدم، وإضافة لوحة تحكم للموارد البشرية لاستعراض الطلبات.
+- الوظائف العشر من `data.js` السابق نُقلت كما هي إلى الجدول عبر `schema.sql`.
+- الطلبات القديمة المحفوظة في متصفح المستخدم (`localStorage`) تُنقل تلقائيًا إلى حسابه في قاعدة البيانات عند أول تسجيل دخول من نفس المتصفح.

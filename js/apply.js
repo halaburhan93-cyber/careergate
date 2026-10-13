@@ -1,7 +1,6 @@
 /* نموذج التقديم: تحقق من الحقول، رفع الملف، رقم مرجعي، رسالة تأكيد
-   ملاحظة مهمة: لا يوجد خادم هنا. الإرسال محاكى، والحفظ في localStorage للعرض فقط.
-   للإرسال الفعلي استبدل الدالة submitApplication بطلب إلى خدمة خلفية (انظر README). */
-(function () {
+   يُحفظ الطلب في جدول applications على Supabase مرتبطًا بحساب المستخدم. */
+window.CG_AUTH.ready.then(function () {
   const form = document.getElementById("apply-form");
   const $job = document.getElementById("job");
   const $cv = document.getElementById("cv");
@@ -122,19 +121,15 @@
     return `CG-${date}-${[...rnd].map((n) => chars[n % chars.length]).join("")}`;
   }
 
-  /* محاكاة الإرسال — هنا يُستبدل الكود بطلب fetch إلى الخادم */
-  function submitApplication(data) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const record = { ...data, reference: makeReference(), submittedAt: new Date().toISOString() };
-        try {
-          const all = JSON.parse(localStorage.getItem("cg_applications") || "[]");
-          all.push(record);
-          localStorage.setItem("cg_applications", JSON.stringify(all));
-        } catch { /* التخزين غير متاح — لا يؤثر على العرض */ }
-        resolve(record);
-      }, 900);
-    });
+  /* حفظ الطلب في جدول applications مرتبطًا بحساب المستخدم (RLS يمنع الوصول لطلبات الآخرين) */
+  async function submitApplication(data) {
+    const reference = makeReference();
+    const { data: row, error } = await window.CG_AUTH.sb.from("applications").insert({
+      reference, job_id: data.jobId, job_title: data.jobTitle, full_name: data.fullName, email: data.email,
+      phone: data.phone, qualification: data.qualification, major: data.major, cv_name: data.cvName, cv_size: data.cvSize,
+    }).select("submitted_at").single();
+    if (error) throw error;
+    return { ...data, reference, submittedAt: row.submitted_at };
   }
 
   form.addEventListener("submit", async (e) => {
@@ -156,7 +151,9 @@
 
     const f = $cv.files[0];
     const job = CG.getJob($job.value);
-    const rec = await submitApplication({
+    let rec;
+    try {
+    rec = await submitApplication({
       jobId: $job.value,
       jobTitle: job ? job.title : "طلب عام",
       fullName: form.fullName.value.trim().replace(/\s+/g, " "),
@@ -167,6 +164,14 @@
       cvName: f.name,
       cvSize: f.size,
     });
+    } catch (err) {
+      console.error(err);
+      alertBox.textContent = "تعذّر إرسال الطلب. تحقق من اتصالك وحاول مرة أخرى.";
+      alertBox.classList.add("is-visible");
+      btn.disabled = false;
+      btn.textContent = "إرسال الطلب";
+      return;
+    }
     showConfirmation(rec);
   });
 
@@ -194,7 +199,7 @@
           <a class="btn btn--primary" href="jobs.html">تصفح وظائف أخرى</a>
           <button class="btn btn--ghost" type="button" onclick="window.print()">طباعة التأكيد</button>
         </div>
-        <p class="confirm__note">نسخة تجريبية: لم يُرسل هذا الطلب إلى أي جهة، ولم يُرفع الملف إلى خادم. حُفظت البيانات في متصفحك فقط للعرض.</p>
+        <p class="confirm__note">حُفظ الطلب في حسابك. ملاحظة: ملف السيرة الذاتية لا يُرفع في هذه النسخة، ويُحفظ اسمه فقط.</p>
       </div>`;
     document.getElementById("apply-title").textContent = "تم إرسال الطلب";
     document.getElementById("apply-sub").textContent = "رقمك المرجعي ظاهر أدناه. احتفظ به لمتابعة طلبك.";
@@ -208,4 +213,4 @@
       catch { ev.target.textContent = "انسخه يدويًا"; }
     });
   }
-})();
+});
