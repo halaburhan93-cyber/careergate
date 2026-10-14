@@ -18,7 +18,7 @@
   const AUTH = (window.CG_AUTH = { sb, user: null, initialHash: h });
 
   // يسمح فقط بإعادة التوجيه إلى صفحات الموقع نفسه (يمنع Open Redirect)
-  AUTH.safeNext = (n) => (n && /^(index|jobs|job|apply)\.html(\?[^#\s]*)?$/.test(n) ? n : "index.html");
+  AUTH.safeNext = (n) => (n && /^(index|jobs|job|apply|faq)\.html(\?[^#\s]*)?$/.test(n) ? n : "index.html");
   AUTH.baseUrl = () => new URL(".", location.href).href;
   AUTH.displayName = (u) => (u && ((u.user_metadata || {}).full_name || u.email)) || "";
 

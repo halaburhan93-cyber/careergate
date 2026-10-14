@@ -62,6 +62,7 @@
     ["index.html", "الرئيسية", "home"],
     ["index.html#about", "عن الشركة", "about"],
     ["jobs.html", "الوظائف الشاغرة", "jobs"],
+    ["faq.html", "الأسئلة الشائعة", "faq"],
   ];
 
   const logo = `
@@ -119,6 +120,7 @@
         <a href="jobs.html">الوظائف الشاغرة</a>
         <a href="index.html#about">عن الشركة</a>
         <a href="apply.html">التقديم العام</a>
+        <a href="faq.html">الأسئلة الشائعة</a>
       </nav>` : ""}
       <p class="site-footer__copy">© ${new Date().getFullYear()} CareerGate. مشروع تجريبي ببيانات وهمية.</p>
     </div>`;
